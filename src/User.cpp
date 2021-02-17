@@ -12,7 +12,7 @@ namespace Bookstore {
     }
 
     void User::modifyPasswd(const std::string &newPwd) {
-        passwd = newPwd;
+        strcpy(passwd, newPwd.c_str());
     }
 
     User& User::getRoot() {

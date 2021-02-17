@@ -1,0 +1,57 @@
+Always Challenge Miracles.x
+su root sjtu v
+useradd worker0 worker0_password 3 WilsonInc v
+useradd worker0 worker0_passworddd 3 Harrison-Martin x
+useradd root2 sjtu2 7 OrtizLLC x
+useradd root sjtu 1 White-Alvarado x
+passwd worker0 worker0_passworddd v
+passwd root sjtuuu v
+delete user0 x
+logout v
+Always Cook Mushroom. x
+useradd user_ user__password x
+register user__ user___password v
+logout  x
+delete user x
+passwd root sjtu x
+Stone-Foster x
+su worker0 worker0_password x
+su worker0 worker0_passworddd v
+passwd worker0 worker0_password worker0_password x
+useradd user0 user0_password 1 YEFA v
+register user1 user1_password hanq qing x
+delete user1  x
+logout v
+su root sjtuuu v
+delete worker0 v
+delete worker0 x
+delete user0 v
+useradd user0 user0_password 1 Mendoza,PotterandMorris v
+logout v
+su user0 user0_password v
+passwd user1 user1_password user1_passworddd x
+logout v
+su user0 user0_password v
+delete user0 x
+logout v
+su root sjtuuu v
+delete user0 v
+useradd worker1 worker1_password 3 Baxter-Harrison v
+useradd user2 user2_password 1 Gray-Yates v
+register user3 user3_password Edwards-Hall v
+logout v
+su user2 user2_password v
+logout v
+su user3 user3_password v
+logout v
+su worker1 worker1_password v
+useradd user4 user4_password 1 Roberts-Mcdonald v
+register user5 user5_password Li,TorresandGreen v
+logout v
+su user4 user4_password v
+logout v
+su user5 user5_password v
+logout v
+Congratulations! x
+exit v
+

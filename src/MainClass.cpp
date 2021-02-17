@@ -21,6 +21,7 @@ namespace Bookstore {
         using option_t = const option_t_basic&;
         static option_t getOptions();
         static std::vector<std::string> split(const std::string&);
+        static void destruct();
     };
 
     Tool::option_t Tool::getOptions() {
@@ -90,18 +91,31 @@ namespace Bookstore {
 //        for (const auto &i : res) {
 //            std::cerr << i << '\n';
 //        }
-        if(res.empty()) {
-            throw SyntaxError();
-        }
         return res;
+    }
+    
+    void Tool::destruct() {
+        UserStatus::getInstance().~UserStatus();
     }
 
     void MainClass::init() {
         std::string inputLine;
         auto options = Tool::getOptions();
         while (getline(std::cin, inputLine)) {
+        	if (inputLine == "passwd user1 user1_password user1_passworddd") {
+        		std::cerr << "tmp";
+        	}
+	        if (inputLine == "su user0 user0_password") {
+		        std::cerr << "tmp";
+	        }
             try {
                 const auto &option = Tool::split(inputLine);
+	            if (option.empty()) {
+	            	throw SyntaxError("No option");
+	            }
+	            if (option[0] == "quit" || option[0] == "exit") {
+		            break;
+	            }
                 auto it = options.find(option.front());
                 if (it == options.end()) {
                     throw NoOptionError();
@@ -109,16 +123,25 @@ namespace Bookstore {
                 else {
                     it->second(option);
                 }
-
             } catch (NoOptionError& e) {
-                std::cerr << "Fatal: Option not found" << e.what() << '\n';
+            	std::cout << "Invalid\n";
+                std::cerr << "Error: Option not found " << e.what() << '\n';
             } catch (SyntaxError& e) {
-                std::cerr << "Fatal: Input Syntax error" << e.what() << '\n';
+	            std::cout << "Invalid\n";
+                std::cerr << "Error: Input Syntax error " << e.what() << '\n';
+            } catch (PermissionError& e) {
+	            std::cout << "Invalid\n";
+                std::cerr << "Error: Insufficient privilege " << e.what() << '\n';
+            } catch (RuntimeError& e) {
+	            std::cerr << "Fatal: Runtime Error " << e.what() << '\n';
+            } catch (RunningError& e) {
+	            std::cout << "Invalid\n";
+	            std::cerr << "Error: Problem occurs during executing " << e.what() << '\n';
             }
-            catch (PermissionError& e) {
-                std::cerr << "Error: Permission not denied" << e.what() << '\n';
-            }
+            std::cerr << '\n' << "operation " <<inputLine << '\n';
+            UserStatus::getInstance().users.print();
         }
+        Tool::destruct();
     }
 
 

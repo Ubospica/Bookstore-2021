@@ -5,6 +5,8 @@
 #ifndef BOOKSTORE_2021_USER_HPP
 #define BOOKSTORE_2021_USER_HPP
 
+#include <cstring>
+#include <ostream>
 #include <string>
 #include <utility>
 
@@ -18,13 +20,16 @@ namespace Bookstore{
             USER = 1,
             VISITOR = 0
         };
-        const Permission perm;
-        std::string userName;
-        std::string userID;
+        const Permission perm = VISITOR;
+        char userName[40];
+        char userID[40];
 
+        User() = default;
         User (std::string userID, std::string userName, const std::string& passwd, Permission perm) noexcept
-            : userID(std::move(userID)), userName(std::move(userName)), perm(perm) {
-            ;`
+            : perm(perm) {
+            strcpy(this->userID, userID.c_str());
+            strcpy(this->userName, userName.c_str());
+	        strcpy(this->passwd, passwd.c_str());
         }
 
         User (const User &ano) = default;
@@ -34,13 +39,17 @@ namespace Bookstore{
         void modifyPasswd(const std::string &newPwd);
 
         static User& getRoot();
-
         static User& getVisitor();
-
+        
+		friend std::ostream& operator<<(std::ostream &os, User u) {
+			os << "ID = " << u.userID << " Name = " << u.userName << " Pwd = " << u.passwd
+				<< " Perm = " << u.perm << '\n';
+			return os;
+		}
     private:
-        std::string passwd;
+        char passwd[40];
     };
-
+	
 }
 
 

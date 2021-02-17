@@ -7,6 +7,8 @@
 
 #include <exception>
 #include <utility>
+#include <string>
+
 namespace Bookstore {
     class ExceptionBase : std::exception {
     private:
@@ -34,6 +36,9 @@ namespace Bookstore {
     class PermissionError : public ExceptionBase {
         using ExceptionBase::ExceptionBase;
     };
+	class RuntimeError : public ExceptionBase {
+		using ExceptionBase::ExceptionBase;
+	};
 }
 
 #endif //BOOKSTORE_2021_EXCEPTION_HPP

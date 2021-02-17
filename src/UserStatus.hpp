@@ -7,18 +7,24 @@
 
 #include <unordered_map>
 #include <vector>
+#include "BPlusTree.hpp"
 #include "User.hpp"
 
 namespace Bookstore {
     class UserStatus {
         //singleton class
     public:
-        std::unordered_map<std::string,User> users {std::make_pair("root", User::getRoot())};
-        User *curUserPtr = &User::getVisitor();
+        BPlusTree<std::string, User, 100> users;
+        int curUserPtr, visiterPtr, rootPtr;
 
         static UserStatus& getInstance(){
             static UserStatus instance;
             return instance;
+        }
+        User getCurUser() {
+        	int tmp = curUserPtr;
+        	auto tmp1 = users.getVal(curUserPtr);
+        	return users.getVal(curUserPtr);
         }
 
         static void su(const std::vector<std::string>& s);
@@ -28,7 +34,11 @@ namespace Bookstore {
         static void delete_(const std::vector<std::string>& s);
         static void passwd(const std::vector<std::string>& s);
     private:
-        UserStatus() = default;
+        UserStatus() : users("Users") {
+	        visiterPtr = users.insert("__visitor", User::getVisitor());
+	        rootPtr = users.insert("root", User::getRoot());
+	        curUserPtr = visiterPtr;
+        }
     };
 }
 
