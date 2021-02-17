@@ -25,7 +25,7 @@ namespace Bookstore{
         char userID[40];
 
         User() = default;
-        User (std::string userID, std::string userName, const std::string& passwd, Permission perm) noexcept
+        User (const std::string& userID, const std::string& userName, const std::string& passwd, Permission perm) noexcept
             : perm(perm) {
             strcpy(this->userID, userID.c_str());
             strcpy(this->userName, userName.c_str());
@@ -33,7 +33,11 @@ namespace Bookstore{
         }
 
         User (const User &ano) = default;
-
+	
+	
+	    friend bool operator<(const User &one, const User &ano) {
+	    	return std::strcmp(one.userID, ano.userID);
+	    }
 
         bool checkPasswd(const std::string &s);
         void modifyPasswd(const std::string &newPwd);
@@ -41,7 +45,7 @@ namespace Bookstore{
         static User& getRoot();
         static User& getVisitor();
         
-		friend std::ostream& operator<<(std::ostream &os, User u) {
+		friend std::ostream& operator<<(std::ostream &os, const User &u) {
 			os << "ID = " << u.userID << " Name = " << u.userName << " Pwd = " << u.passwd
 				<< " Perm = " << u.perm << '\n';
 			return os;
