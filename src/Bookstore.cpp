@@ -233,7 +233,8 @@ namespace Bookstore {
 				Data::cmpType = Data::CmpType::VAL_ISBN;
 				throw SyntaxError("show");
 			}
-		}		Data::cmpType = Data::CmpType::VAL_ISBN;
+		}
+		Data::cmpType = Data::CmpType::VAL_ISBN;
 		if (res.empty()) {
 			std::cout << '\n';
 		}

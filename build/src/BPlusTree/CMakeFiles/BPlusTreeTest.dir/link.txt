@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/BPlusTreeTest.dir/test.cpp.o CMakeFiles/BPlusTreeTest.dir/__/Data.cpp.o  -o BPlusTreeTest 
