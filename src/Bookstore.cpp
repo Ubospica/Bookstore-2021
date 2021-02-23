@@ -111,6 +111,9 @@ namespace Bookstore {
 			}
 			std::string nextOption (option[i + 1].begin() + 1, option[i + 1].end());
 			if (option[i] == "-ISBN") {
+				if (nextOption == curBook.ISBN) {
+					throw RunningError("isbn is not changed");
+				}
 				curBook.setISBN(nextOption);
 			}
 			else if (option[i] == "-name") {

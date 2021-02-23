@@ -1,0 +1,17 @@
+su root sjtu v
+useradd rbq rbq 3 rbq v
+su rbq rbq v
+select 1 v
+modify -ISBN=1 -name="1" -author="1" -keyword="1" -price=1.0 v
+modify -name="name1" -author="author1" -keyword="keyword1" -price=10.00 v
+buy name1 0 x
+buy name1 1 x
+import name1 1 x
+import 1 1 v
+buy name1 0 x
+buy name1 1 x
+buy 1 0 v
+buy 1 1 v
+buy 1 2 x
+exit v
+
