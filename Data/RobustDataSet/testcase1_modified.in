@@ -1,0 +1,16 @@
+su root sjtu v
+useradd rbq rbqqqaq x
+useradd rbq rbqqqaq 3 rbq v
+su rbq rbqqqaq v
+su root sjtu v
+su rbq v
+su root sjtu v
+delete rbq x
+delete root x
+logout v
+logout v
+logout v
+logout v
+logout v
+logout x
+

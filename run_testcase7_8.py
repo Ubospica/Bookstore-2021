@@ -5,11 +5,11 @@ x = int(input())
 os.system('./clean.sh')
 
 if x == 7:
-    com = 'rm my.out'
+    com = 'rm my.out a.err'
     os.system(com)
     for i in range(1, 4):
         print('Running test data', i)
-        com = 'time ./code < BasicDataSet/testcase7/' + str(i) + '.txt >> my.out'
+        com = 'time ./code < BasicDataSet/testcase7/' + str(i) + '.txt >> my.out 2>>a.err'
         os.system(com)
     print("Diffing Output")
     os.system('diff my.out BasicDataSet/testcase7/ans.txt')

@@ -11,15 +11,14 @@ namespace Bookstore {
 		int cnt = 0;
 		bool isRoot = false, isLeaf = false;
 		int prev = -1, next = -1;
-		Key vKey[M];
-		int son[M + 1];
+		Key vKey[M] {};
+		int son[M + 1] {};
 	};
 	
 	//-2 cur
 	template <typename LValue, typename RValue, size_t M>
 	template <typename T>
 	inline void BPlusTree<LValue, RValue, M>::read(int pos, T &cur, std::fstream &fs) {
-		int tmp = fs.rdstate();
 		if(pos >= 0){
 			fs.seekg(pos);
 		}
@@ -86,8 +85,30 @@ namespace Bookstore {
 		write(-2, newRt);
 	}
 	
+	//returns node in the index
 	template <typename LValue, typename RValue, size_t M>
-	int BPlusTree<LValue, RValue, M>::find(int pos, Key vKey) {
+	std::tuple<int,int> BPlusTree<LValue, RValue, M>::findIndex(int pos, const Key &vKey) {
+		Node cur;
+		read(pos, cur);
+		if (cur.cnt == 0) {
+			return std::make_tuple(-1, 0);
+		}
+		int pl = std::upper_bound(cur.vKey, cur.vKey + cur.cnt, vKey) - cur.vKey;
+		if (!cur.isLeaf) { //simple node
+			return findIndex(cur.son[pl], vKey);
+		}
+		else {
+			if (pl == 0 || cur.vKey[pl - 1] != vKey) {
+				return std::make_tuple(-1, 0);
+			}
+			else {
+				return std::make_tuple(pos, pl - 1);
+			}
+		}
+	}
+	
+	template <typename LValue, typename RValue, size_t M>
+	int BPlusTree<LValue, RValue, M>::find(int pos, const Key &vKey) {
 		Node cur;
 		read(pos, cur);
 		if (cur.cnt == 0) {
@@ -109,7 +130,7 @@ namespace Bookstore {
 	
 	template <typename LValue, typename RValue, size_t M>
 	int BPlusTree<LValue, RValue, M>::find(const LValue &vl) {
-		return find(root, ha(vl));
+		return find(root, vl);
 	}
 	
 	template <typename LValue, typename RValue, size_t M>
@@ -131,13 +152,6 @@ namespace Bookstore {
 		Node cur;
 		read(pos, cur);
 		if(cur.isLeaf) {
-//				if (cur.cnt == 0) {
-//					cur.vKey[cur.cnt] = vKey;
-//					cur.son[cur.cnt] = vSon;
-//					++cur.cnt;
-//					write(pos, cur);
-//					return true;
-//				}
 			int pl = std::lower_bound(cur.vKey, cur.vKey + cur.cnt, vKey) - cur.vKey;
 			if (pl < cur.cnt && cur.vKey[pl] == vKey) {
 				if (cur.son[pl] >= 0) {
@@ -150,7 +164,7 @@ namespace Bookstore {
 					return true;
 				}
 			}
-			else {//can be improved
+			else {
 				for (int i = cur.cnt - 1; i >= pl; --i) {
 					cur.vKey[i + 1] = cur.vKey[i];
 					cur.son[i + 1] = cur.son[i];
@@ -164,28 +178,32 @@ namespace Bookstore {
 					return true;
 				}
 				else { //split
-					Node newNd {M - M / 2, 0, 1, pos};
+					Node newNd {M - M / 2, 0, 1, pos, cur.next};
 					//1-M 1-m/2, m/2+1-m
 					//0 - m/2-1, m/2 - m-1
 					std::memcpy(newNd.vKey, cur.vKey + M / 2, newNd.cnt * sizeof(Key));
 					std::memcpy(newNd.son, cur.son + M / 2, newNd.cnt * sizeof(int));
 					cur.cnt = M / 2;
+					
+					treeDt.seekp(0, std::ios::end);
+					int newP = treeDt.tellp();
+					write(-1, newNd);
+					
+					if (cur.next != -1) {
+						Node nextNd;
+						read(cur.next, nextNd);
+						nextNd.prev = newP;
+						write(cur.next, nextNd);
+					}
+					cur.next = newP;
+					
 					if (!cur.isRoot) {
-						treeDt.seekp(0, std::ios::end);
-						int newP = treeDt.tellp();
-						write(-1, newNd);
-						cur.next = newP;
 						write(pos, cur);
 						vKey = newNd.vKey[0], vSon = newP;
-//							argu = std::make_tuple(newP, newNd.vKey[0]);
 					} else {
 						cur.isRoot = 0;
-						Node newRoot{1, 1, 0, -1, -1, {newNd.vKey[0]}, {pos}};
+						Node newRoot{1, 1, 0, -1, -1, {newNd.vKey[0]}, {pos, newP}};
 						treeDt.seekp(0, std::ios::end);
-						int newP = treeDt.tellp();
-						newRoot.son[1] = newP;
-						cur.next = newP;
-						write(-1, newNd);
 						root = treeDt.tellp();
 						write(-1, newRoot);
 						write(pos, cur);
@@ -193,7 +211,7 @@ namespace Bookstore {
 						++height;
 						treeDt.seekp(sizeof(int), std::ios::cur);
 						write(-2, height);
-						vKey = -1;
+						vSon = -1;
 					}
 					return true;
 				}
@@ -260,9 +278,8 @@ namespace Bookstore {
 	template <typename LValue, typename RValue, size_t M>
 	int BPlusTree<LValue, RValue, M>::insert(const LValue &vl, const RValue &vr) {
 		valueDt.seekp(0, std::ios::end); //
-		Key vKey = ha(vl);
+		Key vKey(vl);
 		int pValue = valueDt.tellp(), vSon = pValue;
-//			std::cerr << "hash of " << vl << " is " << ha(vl) << '\n';
 		if (insert(root, vKey, vSon)) {
 			write(-1, vr, valueDt);
 			++size;
@@ -275,11 +292,27 @@ namespace Bookstore {
 		}
 	}
 	
+	
+	template <typename LValue, typename RValue, size_t M>
+	int BPlusTree<LValue, RValue, M>::insertIndex(const LValue &vl, int pos) {
+		Key vKey(vl);
+		int pos1 = pos;
+		if (insert(root, vKey, pos1)) {
+			++size;
+			treeDt.seekp(sizeof(int), std::ios::beg);
+			write(-2, size);
+			return pos;
+		}
+		else {
+			return -1;
+		}
+	}
+	
 	// an idiotic & easily-implemented version
 	// cuz i cannot erase the data (RValve) in "Data.dat"
 	// so erasing index only is useless
 	template <typename LValue, typename RValue, size_t M>
-	bool BPlusTree<LValue, RValue, M>::erase(int pos, Key vKey) {
+	bool BPlusTree<LValue, RValue, M>::erase(int pos, const Key &vKey) {
 		Node cur;
 		read(pos, cur);
 		if (cur.cnt == 0) {
@@ -303,7 +336,7 @@ namespace Bookstore {
 	
 	template <typename LValue, typename RValue, size_t M>
 	bool BPlusTree<LValue, RValue, M>::erase(const LValue &vl) {
-		if (erase(root, ha(vl))) {
+		if (erase(root, vl)) {
 			--size;
 			treeDt.seekp(sizeof(int), std::ios::beg);
 			write(-2, size);
@@ -315,43 +348,54 @@ namespace Bookstore {
 	}
 	
 	template <typename LValue, typename RValue, size_t M>
-	auto BPlusTree<LValue, RValue, M>::route() ->
-			std::vector<std::tuple<Key, int>>  {
-		std::vector<std::tuple<Key, int>> res;
+	auto BPlusTree<LValue, RValue, M>::route(const Key &val) ->
+		std::vector<int> {
+		std::vector<int> res;
+		auto pos0 = findIndex(root, val);
+		if (std::get<0>(pos0) == -1) {
+			return res;
+		}
 		Node cur;
-		read(root, cur);
-		while (!cur.isLeaf) {
-			read(cur.son[0], cur);
-		}
-		for (int i = 0; i < cur.cnt; ++i) {
-			if (cur.son[i] != -1){
-				res.push_back(std::make_tuple(cur.vKey[i], cur.son[i]));
-			}
-		}
-		while (cur.next != -1) {
-			read(cur.next, cur);
+		read(std::get<0>(pos0), cur);
+		auto checkAndAdd = [&res, &val] (const Node &cur) {
 			for (int i = 0; i < cur.cnt; ++i) {
-				if (cur.son[i] != -1){
-					res.push_back(std::make_tuple(cur.vKey[i], cur.son[i]));
+				if (cur.son[i] != -1 && cur.vKey[i] == val) {
+					res.push_back(cur.son[i]);
 				}
 			}
+		};
+		checkAndAdd(cur);
+		auto tmp = std::get<0>(pos0);
+		while (cur.next != -1 && cur.vKey[cur.cnt] == val) {
+			tmp = cur.next;
+			read(tmp, cur);
+			checkAndAdd(cur);
+		}
+		tmp = std::get<0>(pos0);
+		while (cur.prev != -1 && cur.vKey[0] == val) {
+			tmp = cur.prev;
+			read(tmp, cur);
+			checkAndAdd(cur);
 		}
 		return res;
 	}
+
 	
 	template <typename LValue, typename RValue, size_t M>
 	void BPlusTree<LValue, RValue, M>::print (const BPlusTree::Node &p) {
 		using namespace std;
-		cerr << "cnt=" << p.cnt << " isroot=" << p.isRoot << " isLeaf=" << p.isLeaf << "\n";
-		cerr << "vKey: ";
+		cerr << "cnt=" << p.cnt << " isroot=" << p.isRoot << " isLeaf=" << p.isLeaf
+				<< " prev=" << p.prev << " next=" << p.next<<"\n";
+		cerr << "vKey, son: ";
 		for (int i = 0; i < p.cnt; ++i) {
-			cerr << p.vKey[i] << ' ';
+			cerr << "(" << p.vKey[i] << ", " << p.son[i] << ") ";
 		}
-		cerr << "\nson: ";
-		for (int i = 0; i <= p.cnt; ++i) {
-			cerr << p.son[i] << ' ';
-		}
-		cerr << '\n';
+		cerr << p.son[p.cnt] << '\n';
+//		cerr << "\nson: ";
+//		for (int i = 0; i <= p.cnt; ++i) {
+//			cerr << p.son[i] << ' ';
+//		}
+//		cerr << '\n';
 	}
 	template <typename LValue, typename RValue, size_t M>
 	void BPlusTree<LValue, RValue, M>::print (int pos) {

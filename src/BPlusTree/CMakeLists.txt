@@ -1,1 +1,1 @@
-add_executable(BPlusTreeTest test.cpp)
+add_executable(BPlusTreeTest test.cpp ../Data.cpp)

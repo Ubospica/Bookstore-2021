@@ -8,12 +8,12 @@ set (Bookstore_2021_VERSION_MINOR 1)
 
 include_directories(src)
 
-add_executable(Bookstore_2021
+add_executable(code
         src/main.cpp src/MainClass.cpp src/User.cpp src/UserStatus.cpp
-    )
+        src/Data.hpp src/Data.cpp src/Book.cpp src/Bookstore.cpp)
 
 add_subdirectory(src/BPlusTree)
-target_include_directories(Bookstore_2021 PUBLIC src/BPlusTree)
+target_include_directories(code PUBLIC src/BPlusTree)
 
 # enable_testing()
 # add_test(NAME BPTTest COMMAND BPlusTreeTest)

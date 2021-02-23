@@ -1,0 +1,6 @@
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/CMakeFiles/edit_cache.dir
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/CMakeFiles/Bookstore_2021.dir
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/src/BPlusTree/CMakeFiles/rebuild_cache.dir
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/src/BPlusTree/CMakeFiles/edit_cache.dir
+/mnt/c/aa.mine/university/courses/数据结构/homework/Bookstore-2021/build/src/BPlusTree/CMakeFiles/BPlusTreeTest.dir

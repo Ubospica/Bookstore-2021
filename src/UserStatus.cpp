@@ -29,7 +29,7 @@ namespace Bookstore {
             if (s.size() > 3) {
                 throw SyntaxError("su: The number of argument is incorrect.");
             }
-            ins.curUserPtr = it;
+            ins.curUser.push_back(std::make_tuple(it, -1));
         }
         else {
             if (s.size() != 3) {
@@ -39,7 +39,7 @@ namespace Bookstore {
                 throw RunningError("su: Passwd incorrect");
             }
             else {
-                ins.curUserPtr = it;
+	            ins.curUser.push_back(std::make_tuple(it, -1));
             }
         }
 //	    if (it == 496)
@@ -56,7 +56,7 @@ namespace Bookstore {
         if (curUser.perm < User::USER) {
             throw PermissionError("logout");
         }
-        ins.curUserPtr = ins.visiterPtr;
+        ins.curUser.erase(ins.curUser.end() - 1);
     }
     void UserStatus::useradd(const std::vector<std::string>& s) {
         if (s.size() != 5) {
@@ -110,7 +110,16 @@ namespace Bookstore {
         if (curUser.perm < User::SUPERUSER) {
             throw PermissionError("delete");
         }
-        if (ins.users.erase(s[1]) == false){
+        if (s[1] == "__visitor") {
+        	throw RunningError("cannot delete visitor");
+        }
+        auto curUserPtr = ins.users.find(Data(s[1]));
+        for (const auto &i : ins.curUser) {
+        	if (std::get<0>(i) == curUserPtr) {
+        		throw RunningError("user is logging");
+        	}
+        }
+        if (!ins.users.erase(s[1])){
 	        throw RunningError("delete: User not exist.");
         }
     }
