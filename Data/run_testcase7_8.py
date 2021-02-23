@@ -15,11 +15,11 @@ if x == 7:
     os.system('diff my.out BasicDataSet/testcase7/ans.txt')
 
 if x == 8:
-    com = 'rm my.out'
+    com = 'rm my.out a.err'
     os.system(com)
     for i in range(1, 101):
         print('Running test data', i)
-        com = 'time ./code < BasicDataSet/testcase8/' + str(i) + '.txt >> my.out'
+        com = 'time ./code < BasicDataSet/testcase8/' + str(i) + '.txt >> my.out 2>>a.err'
         os.system(com)
     print("Diffing Output")
     os.system('diff my.out BasicDataSet/testcase8/ans.txt')

@@ -10,7 +10,7 @@ include_directories(src)
 
 add_executable(Bookstore_2021
         src/main.cpp src/MainClass.cpp src/User.cpp src/UserStatus.cpp
-    )
+        src/Data.hpp src/Data.cpp src/Book.cpp src/Bookstore.cpp)
 
 add_subdirectory(src/BPlusTree)
 target_include_directories(Bookstore_2021 PUBLIC src/BPlusTree)

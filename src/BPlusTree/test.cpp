@@ -36,16 +36,24 @@ int main() {
 //			bps.print();
 		}
 		else if (o == 4) {
-			auto rt = bps.route();
+			cin >> v;
+			s.clear();
+			if (v > 0) {
+				cin>>s;
+			}
+			String::cmpLen = v;
+			auto rt = bps.route(s);
+			String::cmpLen = -1;
 			for (const auto &i : rt) {
-				auto tmp = get<0>(i);
-				cout << get<0>(i) << ' ';
+				cout << bps.getVal(i) << ' ';
+//				auto tmp = get<0>(i);
+//				cout << get<0>(i) << ' ';
 			}
 			cout << '\n';
-			for (const auto &i : rt) {
-				cout << get<1>(i) << ' ';
-			}
-			cout << '\n';
+//			for (const auto &i : rt) {
+//				cout << get<1>(i) << ' ';
+//			}
+//			cout << '\n';
 			cout.flush();
 		}
 	}

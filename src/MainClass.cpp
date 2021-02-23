@@ -10,6 +10,7 @@
 
 #include "Exception.hpp"
 #include "UserStatus.hpp"
+#include "Bookstore.hpp"
 
 namespace Bookstore {
 
@@ -21,7 +22,7 @@ namespace Bookstore {
         using option_t = const option_t_basic&;
         static option_t getOptions();
         static std::vector<std::string> split(const std::string&);
-        static void destruct();
+//        static void destruct();
     };
 
     Tool::option_t Tool::getOptions() {
@@ -32,11 +33,11 @@ namespace Bookstore {
                 {"register",UserStatus::register_},
                 {"delete",UserStatus::delete_},
                 {"passwd",UserStatus::passwd},
-//                {"select",Parser::select},
-//                {"modify",Parser::modify},
-//                {"import",Parser::import},
-//                {"show",Parser::show},
-//                {"buy",Parser::buy},
+                {"select",Bookstore::select},
+                {"modify",Bookstore::modify},
+                {"import",Bookstore::import},
+                {"show",Bookstore::show},
+                {"buy",Bookstore::buy},
 //                {"report",Parser::report},
 //                {"log",Parser::log},
         };
@@ -68,19 +69,30 @@ namespace Bookstore {
                 std::string tmp;
                 tmp += static_cast<char>(ss.get());
                 int ch=ss.peek();
-                while (ch != ' ' && ch != EOF) {
-                    tmp += static_cast<char>(ss.get());
-                    ch=ss.peek();
+                if (ch == '\"') {
+                	ss.ignore();
+                	ch = ss.peek();
+	                while (ch != '\"' && ch != EOF) {
+		                tmp += static_cast<char>(ss.get());
+		                ch=ss.peek();
+	                }
+	                if (ch != '\"') {
+		                throw SyntaxError();
+	                }
+	                ss.ignore();
                 }
-                if (tmp.length() == 1) {
-                    throw SyntaxError();
+                else {
+	                while (ch != ' ' && ch != EOF) {
+		                tmp += static_cast<char>(ss.get());
+		                ch = ss.peek();
+	                }
                 }
                 res.push_back(tmp);
             }
             else if (ch0 == ' ') {
                 do {
                     ss.ignore();
-                } while (ss.peek() != EOF && ss.peek() == ' ');
+                } while (ss.peek() == ' ');// && ss.peek() != EOF
             }
             else {
                 std::string tmp;
@@ -88,41 +100,66 @@ namespace Bookstore {
                 res.push_back(tmp);
             }
         }
+        for (const auto &i : res) {
+        	if (i[0] == '-' || i[0] == '=') {
+        		if (i.size() == 1) {
+        			throw SyntaxError();
+        		}
+        	}
+        	else {
+        		if (i.empty()) {
+        			throw SyntaxError();
+        		}
+        	}
+        }
 //        for (const auto &i : res) {
 //            std::cerr << i << '\n';
 //        }
         return res;
     }
     
-    void Tool::destruct() {
-        UserStatus::getInstance().~UserStatus();
-    }
+//    void Tool::destruct() {
+//        UserStatus::getInstance().~UserStatus();
+//    }
 
     void MainClass::init() {
+//    	int cnt = 0;
         std::string inputLine;
         auto options = Tool::getOptions();
         while (getline(std::cin, inputLine)) {
-        	if (inputLine == "passwd user1 user1_password user1_passworddd") {
-        		std::cerr << "tmp";
-        	}
-	        if (inputLine == "su user0 user0_password") {
-		        std::cerr << "tmp";
-	        }
+//        	++cnt;
+//        	if (cnt == 3658) {
+//        		std::cerr << "aa";
+//        	}
             try {
                 const auto &option = Tool::split(inputLine);
 	            if (option.empty()) {
-	            	throw SyntaxError("No option");
+	            	//throw SyntaxError("No option");
+	            	continue;
 	            }
 	            if (option[0] == "quit" || option[0] == "exit") {
 		            break;
 	            }
-                auto it = options.find(option.front());
-                if (it == options.end()) {
-                    throw NoOptionError();
-                }
-                else {
-                    it->second(option);
-                }
+	            else if (option[0] == "show") {
+	            	if (option.size() > 1 && option[1] == "finance") {
+	            		Bookstore::showFinance(option);
+	            	}
+	            	else {
+			            Bookstore::show(option);
+	            	}
+	            }
+	            else {
+		            auto it = options.find(option.front());
+		            if (it == options.end()) {
+			            throw NoOptionError();
+		            } else {
+			            it->second(option);
+		            }
+	            }
+//	            std::cerr << '\n' << "operation " <<inputLine << '\n';
+//				std::cerr << "operator " << cnt << '\n';
+//				if (cnt >= 3600 && cnt <= 3658)
+//	            Bookstore::getInstance().kwdIndex.print();
             } catch (NoOptionError& e) {
             	std::cout << "Invalid\n";
                 std::cerr << "Error: Option not found " << e.what() << '\n';
@@ -138,11 +175,7 @@ namespace Bookstore {
 	            std::cout << "Invalid\n";
 	            std::cerr << "Error: Problem occurs during executing " << e.what() << '\n';
             }
-            std::cerr << '\n' << "operation " <<inputLine << '\n';
-            UserStatus::getInstance().users.print();
         }
-        Tool::destruct();
+//      Tool::destruct();
     }
-
-
 }
